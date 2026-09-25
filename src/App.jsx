@@ -128,7 +128,12 @@ function App() {
         }
       );
 
-     const responseText = await response.text();
+     if (!response.ok) {
+  const errorData = await response.json();
+  throw new Error(errorData.error || "Failed to generate study material.");
+}
+
+const responseText = await response.text();
 
 let data;
 
@@ -138,11 +143,8 @@ try {
   throw new Error("Server returned an invalid response.");
 }
 
-if (!response.ok) {
-  throw new Error(
-    data.error || "Failed to generate study material."
-  );
-}
+
+
       if (!data.result) {
         throw new Error("AI returned an empty response.");
       }
