@@ -14,14 +14,12 @@ const ai = new GoogleGenAI({
 app.use(cors());
 app.use(express.json());
 
-
 // Test route
 app.get("/", (req, res) => {
   res.json({
     message: "AI StudyMate backend is running"
   });
 });
-
 
 // Generate study material
 app.post("/api/generate", async (req, res) => {
@@ -38,7 +36,6 @@ app.post("/api/generate", async (req, res) => {
 
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
-
       contents: `
 You are a study assistant.
 
@@ -87,7 +84,7 @@ ${prompt}
 
     if (!text) {
       return res.status(500).json({
-        error: "AI limit reached.Please try again later."
+        error: "AI returned an empty response."
       });
     }
 
@@ -138,15 +135,14 @@ ${prompt}
       error: "Failed to generate study material. Please try again."
     });
   }
-
+}); // <-- THIS WAS MISSING
 
 // Start server
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-
-// Keep the server alive and show unexpected errors
+// Keep server alive and show unexpected errors
 process.on("uncaughtException", (error) => {
   console.error("UNCAUGHT EXCEPTION:", error);
 });
