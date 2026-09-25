@@ -87,7 +87,7 @@ ${prompt}
 
     if (!text) {
       return res.status(500).json({
-        error: "AI returned an empty response."
+        error: "AI limit reached.Please try again later."
       });
     }
 
@@ -97,25 +97,39 @@ ${prompt}
 
   } catch (error) {
     console.error("Gemini API ERROR:", error);
-if (error.status === 429) {
-  return res.status(429).json({
-    error: "AI usage limit reached. Please try again later."
-  });
-}
-    if (error.status === 503) {
+
+    const status = error?.status || error?.statusCode;
+    const message = error?.message || "";
+
+    // AI usage/rate limit
+    if (
+      status === 429 ||
+      message.includes("429") ||
+      message.toLowerCase().includes("resource exhausted") ||
+      message.toLowerCase().includes("quota")
+    ) {
+      return res.status(429).json({
+        error: "AI limit reached. Please try again later."
+      });
+    }
+
+    // AI service busy
+    if (status === 503) {
       return res.status(503).json({
         error: "The AI service is temporarily busy. Please try again."
       });
     }
 
-    if (error.status === 400) {
+    // Invalid request
+    if (status === 400) {
       return res.status(400).json({
         error: "Invalid request sent to the AI service."
       });
     }
 
-    if (error.status === 401 || error.status === 403) {
-      return res.status(500).json({
+    // Authentication
+    if (status === 401 || status === 403) {
+      return res.status(status).json({
         error: "Gemini API key is invalid or not authorized."
       });
     }
@@ -124,7 +138,6 @@ if (error.status === 429) {
       error: "Failed to generate study material. Please try again."
     });
   }
-});
 
 
 // Start server
