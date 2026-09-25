@@ -114,8 +114,8 @@ function App() {
     setStudyData(null);
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/generate",
+     const response = await fetch(
+  `${import.meta.env.VITE_API_URL}/api/generate`,
         {
           method: "POST",
           headers: {
@@ -128,14 +128,21 @@ function App() {
         }
       );
 
-      const data = await response.json();
+     const responseText = await response.text();
 
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Failed to generate study material."
-        );
-      }
+let data;
 
+try {
+  data = responseText ? JSON.parse(responseText) : {};
+} catch {
+  throw new Error("Server returned an invalid response.");
+}
+
+if (!response.ok) {
+  throw new Error(
+    data.error || "Failed to generate study material."
+  );
+}
       if (!data.result) {
         throw new Error("AI returned an empty response.");
       }
