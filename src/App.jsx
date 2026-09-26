@@ -183,7 +183,7 @@ try {
 
   return (
     <div className="app">
-      <h1>AI StudyMate</h1>
+      <h1>StudySpark AI</h1>
 
       <p>
         Enter your notes or a topic and generate study material.
